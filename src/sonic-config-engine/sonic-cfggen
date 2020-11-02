@@ -36,6 +36,7 @@ import sys
 import yaml
 
 from collections import OrderedDict
+from natsort import natsorted
 from config_samples import generate_sample_config, get_available_config
 from functools import partial
 from minigraph import minigraph_encoder, parse_xml, parse_device_desc_xml, parse_asic_sub_role
