@@ -20,7 +20,7 @@ class Chassis(ChassisBase):
 
         self._eeprom = Eeprom()
 
-        for index in range(0, PORTS_IN_BLOCK):
+        for index in range(1, PORTS_IN_BLOCK + 1):
             sfp_node = Sfp(index)
             self._sfp_list.append(sfp_node)
 
