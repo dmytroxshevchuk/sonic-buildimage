@@ -250,6 +250,13 @@ def parse_platform_json_file(hwsku_json_file, platform_json_file):
         brkout_mode = hwsku_dict[INTF_KEY][intf][BRKOUT_MODE]
 
         child_ports = get_child_ports(intf, brkout_mode, platform_json_file)
+
+        # take optional fields from hwsku.json
+        for key, item in hwsku_dict[INTF_KEY][intf].items():
+            if key == BRKOUT_MODE:
+                continue
+            child_ports.get(intf)[key] = item
+
         ports.update(child_ports)
 
     if not ports:
