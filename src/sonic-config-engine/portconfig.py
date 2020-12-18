@@ -180,6 +180,7 @@ def gen_port_config(ports, parent_intf_id, index, alias_at_lanes, lanes, k,  off
 
             ports[intf_name]['index'] = index.split(",")[alias_start]
             ports[intf_name]['admin_status'] = "up"
+            ports[intf_name]['fec'] = "rs"
 
             parent_intf_id += step
             alias_start += step
