@@ -1,0 +1,90 @@
+module sonic-port_qos_map {
+
+	yang-version 1.1;
+
+	namespace "http://github.com/Azure/sonic-port_qos_map";
+	prefix port_qos_map;
+
+	import sonic-types {
+		prefix stypes;
+		revision-date 2019-07-01;
+	}
+
+	import sonic-port {
+		prefix port;
+		revision-date 2019-07-01;
+	}
+
+	import sonic-extension {
+		prefix ext;
+		revision-date 2019-07-01;
+	}
+
+	description "PORT_QOS_MAP yang Module for SONiC OS";
+
+	revision 2019-07-01 {
+		description "First Revision";
+	}
+
+	container sonic-port_qos_map {
+
+		container PORT_QOS_MAP {
+
+			description "PORT_QOS_MAP part of config_db.json";
+
+			list PORT_QOS_MAP_LIST {
+
+				key "port_name";
+				
+				ext:key-regex-configdb-to-yang "^(Ethernet[0-9]+)$";
+
+				ext:key-regex-yang-to-configdb "<port_name>";
+
+				leaf port_name {
+					type leafref {
+						path /port:sonic-port/port:PORT/port:PORT_LIST/port:port_name;
+					}
+				}
+
+				leaf dscp_to_tc_map {
+					type string {
+						length 1..128;
+					}
+				}
+
+				leaf tc_to_queue_map {
+					type string {
+						length 1..128;
+					}
+				}
+
+				leaf tc_to_pg_map {
+					type string {
+						length 1..128;
+					}
+				}
+
+				leaf pfc_to_queue_map {
+					type string {
+						length 1..128;
+					}
+				}
+
+				leaf pfc_to_pg_map {
+					type string {
+						length 1..128;
+					}
+				}
+
+				leaf pfc_enable {
+					type string {
+						length 1..128;
+					}
+				}
+			} /* end of list PORT_QOS_MAP_LIST */
+
+		} /* end of container PORT_QOS_MAP */
+
+	} /* end of container sonic-port_qos_map */
+
+} /* end of module sonic-port_qos_map */
