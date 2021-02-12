@@ -884,6 +884,7 @@ def parse_asic_meta(meta, hname):
 def parse_deviceinfo(meta, hwsku):
     port_speeds = {}
     port_descriptions = {}
+    port_admin_status = {}
     for device_info in meta.findall(str(QName(ns, "DeviceInfo"))):
         dev_sku = device_info.find(str(QName(ns, "HwSku"))).text
         if dev_sku == hwsku:
@@ -893,10 +894,13 @@ def parse_deviceinfo(meta, hwsku):
                 alias = interface.find(str(QName(ns, "InterfaceName"))).text
                 speed = interface.find(str(QName(ns, "Speed"))).text
                 desc  = interface.find(str(QName(ns, "Description")))
+                admin = interface.find(str(QName(ns, "AdminStatus")))
+                if admin != None:
+                    port_admin_status[port_alias_map.get(alias, alias)] = admin.text
                 if desc != None:
                     port_descriptions[port_alias_map.get(alias, alias)] = desc.text
                 port_speeds[port_alias_map.get(alias, alias)] = speed
-    return port_speeds, port_descriptions
+    return port_speeds, port_descriptions, port_admin_status
 
 # Function to check if IP address is present in the key. 
 # If it is present, then the key would be a tuple.
@@ -1090,6 +1094,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     port_speeds_default = {}
     port_speed_png = {}
     port_descriptions = {}
+    port_admin_status = {}
     console_ports = {}
     mux_cable_ports = {}
     syslog_servers = []
@@ -1148,7 +1153,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
             elif child.tag == str(QName(ns, "LinkMetadataDeclaration")):
                 linkmetas = parse_linkmeta(child, hostname)
             elif child.tag == str(QName(ns, "DeviceInfos")):
-                (port_speeds_default, port_descriptions) = parse_deviceinfo(child, hwsku)
+                (port_speeds_default, port_descriptions, port_admin_status) = parse_deviceinfo(child, hwsku)
         else:
             if child.tag == str(QName(ns, "DpgDec")):
                 (intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni, tunnel_intfs, dpg_ecmp_content) = parse_dpg(child, asic_name)
@@ -1162,7 +1167,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
             elif child.tag == str(QName(ns, "LinkMetadataDeclaration")):
                 linkmetas = parse_linkmeta(child, hostname)
             elif child.tag == str(QName(ns, "DeviceInfos")):
-                (port_speeds_default, port_descriptions) = parse_deviceinfo(child, hwsku)
+                (port_speeds_default, port_descriptions, port_admin_status) = parse_deviceinfo(child, hwsku)
 
     # set the host device type in asic metadata also
     device_type = [devices[key]['type'] for key in devices if key.lower() == hostname.lower()][0]
@@ -1320,6 +1325,10 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     for port_name, port in ports.items():
         if port_name in mux_cable_ports:
             port['mux_cable'] = mux_cable_ports[port_name]
+
+    # set port admin status if parsed from deviceinfo
+    for port_name in port_admin_status:
+        ports.setdefault(port_name, {})['admin_status'] = port_admin_status[port_name]
 
     # set port description if parsed from deviceinfo
     for port_name in port_descriptions:
